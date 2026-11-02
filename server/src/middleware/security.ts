@@ -13,7 +13,13 @@ export class AppError extends Error {
     super(message);
   }
 }
-export type Actor = { id: string; role: 'ADMIN' | 'STAFF'; name: string; email: string };
+export type Actor = {
+  id: string;
+  role: 'ADMIN' | 'STAFF';
+  name: string;
+  email: string;
+  isDemo?: boolean;
+};
 // Express request augmentation is intentionally an ambient namespace.
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

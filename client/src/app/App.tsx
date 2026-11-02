@@ -35,11 +35,16 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { failed: 
     );
   }
 }
+function LoginRoute() {
+  const { user, loading } = useAuth();
+  if (loading) return <LoadingSkeleton />;
+  return user ? <Navigate to="/dashboard" replace /> : <Login />;
+}
 export function App() {
   return (
     <ErrorBoundary>
       <Routes>
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<LoginRoute />} />
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
             <Route index element={<Navigate to="/dashboard" replace />} />

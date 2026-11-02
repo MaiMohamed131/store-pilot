@@ -9,3 +9,6 @@ coverage/
 scripts/refactor.cjs
 
 *.tsbuildinfo
+
+!client/.env.demo
+.vercel/

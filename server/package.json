@@ -11,7 +11,7 @@
     "seed": "tsx src/scripts/seed.ts",
     "seed:demo": "npm run build && node dist/scripts/seed-standalone.js",
     "provision:admin": "npm run build && node dist/scripts/create-local-admin.js",
-    "test": "vitest run src/tests/standalone.test.ts src/tests/auth-standalone.test.ts src/tests/orders-standalone.test.ts src/tests/csrf.test.ts src/tests/demo-data.test.ts",
+    "test": "vitest run src/tests/standalone.test.ts src/tests/auth-standalone.test.ts src/tests/orders-standalone.test.ts src/tests/csrf.test.ts src/tests/demo-data.test.ts src/tests/demo-access.test.ts",
     "test:integration": "vitest run src/tests/api.test.ts"
   },
   "dependencies": {

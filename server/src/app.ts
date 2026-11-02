@@ -1,3 +1,4 @@
+import { demoRouter } from './services/visitor-demo.js';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -47,6 +48,7 @@ const api = express.Router();
 app.use('/api/v1', api);
 api.get('/auth/csrf', csrfToken);
 api.use(csrf);
+api.use(demoRouter);
 api.post(
   '/auth/login',
   rateLimit({

@@ -551,6 +551,10 @@ main {
   overflow: hidden;
   min-width: 0;
 }
+.card-heading h2 {
+  font-size: 18px;
+  line-height: 1.4;
+}
 .card-heading {
   display: flex;
   align-items: center;
@@ -564,6 +568,15 @@ main {
   color: #94a3b8;
   margin-top: 6px;
   line-height: 1.5;
+}
+.card-heading p {
+  font-size: 12px;
+}
+.bottom-grid .card-heading {
+  flex-wrap: wrap;
+}
+.bottom-grid .text-link {
+  font-size: 12px;
 }
 .chart-grid {
   display: grid;
@@ -723,7 +736,7 @@ table {
 th {
   background: #f9fafc;
   color: #8792a5;
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 0.25px;
   font-weight: 500;
   padding: 12px 20px;
@@ -732,7 +745,7 @@ th {
 }
 td {
   padding: 15px 20px;
-  font-size: 11px;
+  font-size: 14px;
   border-bottom: 1px solid #f0f2f6;
 }
 tbody tr:last-child td {
@@ -742,7 +755,7 @@ tbody tr:hover {
   background: #fafbfe;
 }
 td strong {
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 500;
   display: block;
 }
@@ -751,7 +764,7 @@ td small,
 .low-products small {
   display: block;
   color: #94a3b8;
-  font-size: 9px;
+  font-size: 12px;
   margin-top: 4px;
 }
 .amount {
@@ -760,7 +773,7 @@ td small,
 }
 .order-link {
   color: #6366f1;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 500;
 }
 .customer-cell,
@@ -792,7 +805,7 @@ td small,
   align-items: center;
   padding: 4px 7px;
   border-radius: 5px;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 500;
   line-height: 1.1;
   background: #f1f5f9;
@@ -858,7 +871,7 @@ td small,
 }
 .top-product strong,
 .low-products strong {
-  font-size: 10px;
+  font-size: 14px;
   font-weight: 500;
   display: block;
   overflow: hidden;
@@ -868,7 +881,7 @@ td small,
   white-space: nowrap;
 }
 .rank {
-  font-size: 9px;
+  font-size: 12px;
   color: #b0b9c8;
   width: 15px;
 }
@@ -922,7 +935,7 @@ td small,
   border: 0;
 }
 .stock-alert {
-  font-size: 9px;
+  font-size: 12px;
   background: #fffbeb;
   color: #d97706;
   border: 1px solid #fef3c7;

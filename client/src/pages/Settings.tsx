@@ -36,8 +36,10 @@ function ProfileForm() {
   const change = useMutation({
     mutationFn: (v: z.infer<typeof password>) => api.post('/profile/password', v),
     onSuccess: () => {
-      toast.success('Password changed. Please sign in again.');
-      void signOut();
+      toast.success(
+        user?.isDemo ? 'Demo password changed.' : 'Password changed. Please sign in again.',
+      );
+      if (!user?.isDemo) void signOut();
     },
     onError: (e) => toast.error(errorMessage(e)),
   });
@@ -166,6 +168,15 @@ export function Settings() {
     <>
       <PageHeader title="Settings" description="Your profile, your store, your preferences." />
       <div className="settings-stack">
+        {user?.isDemo && (
+          <p className="form-help">
+            This is your private temporary demo.{' '}
+            {import.meta.env.VITE_DEMO_MODE === 'true'
+              ? 'Changes stay in this browser for up to 24 hours.'
+              : 'Changes expire after 24 hours or a server restart.'}
+            Initial password: DemoPassword123! Use Reset demo in the sidebar to start over.
+          </p>
+        )}
         <ProfileForm />
         {user?.role === 'ADMIN' &&
           (q.isPending ? (

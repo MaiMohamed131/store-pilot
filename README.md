@@ -1,6 +1,26 @@
 # StorePilot
 
-A full-stack retail workspace for small businesses: inventory, fulfillment, sales insights, and team access in one focused interface. Built with React and TypeScript, an Express REST API, and MongoDB. Every dashboard metric comes from stored orders and MongoDB aggregations.
+**Live portfolio demo:** [storepilot-brown.vercel.app](https://storepilot-brown.vercel.app)
+
+A full-stack retail workspace for small businesses: inventory, fulfillment, sales insights, and team access in one focused interface. Built with React and TypeScript, an Express REST API, and MongoDB. The database-backed app calculates dashboard metrics with MongoDB aggregations; the public Vercel demo calculates the same views from each visitor’s browser-local sample data.
+
+## Deploy the portfolio demo on Vercel
+
+The root vercel.json builds the client with npm run build:demo -w client and publishes client/dist, with a fallback for dashboard and other client routes. Keep the Vercel Root Directory at the repository root. No environment variables, database, or API host are needed for this deployment.
+
+Import this repository into Vercel, or run npx vercel login followed by npx vercel --prod from the repository root. The CLI prints the deployed URL. Use the production domain in your CV and portfolio.
+
+This public demo opens directly with 40 products, 240 orders, and a sample team. Every browser profile gets its own editable data in localStorage for up to 24 hours. Refreshes and tabs on the same site share the saved workspace; separate browsers and private windows have separate data. The sidebar Reset demo button restores sample data. Clearing site storage also removes changes. This is simulated demo data, not a backend connected to real accounts. Product, team, profile, password, order status, shop, and analytics interactions run locally; passwords here belong only to the demo. The initial demo password is DemoPassword123!.
+
+To preview this exact version locally, run npm run dev -w client -- --mode demo. The original npm run dev:local command continues to run the Express-backed app.
+
+## Public portfolio demo
+
+Set DEMO_MODE=true in the server environment and restart the API. Every browser receives an opaque HttpOnly cookie identifying its own editable workspace with 40 sample products, 240 orders, and a demo team. No login is required. Products, order fulfillment/cancellation, team members, profile, password, settings, and analytics operate only on that workspace; demo requests never reach the real database routes.
+
+Changes remain in server memory for up to 24 hours and disappear on server restart. The sidebar Reset demo button restores fresh sample data. Tabs in the same browser share a workspace; separate browsers/private windows get separate workspaces. The initial demo password is DemoPassword123!. Workspaces and request rates are bounded. Set DEMO_MODE=false to restore the authenticated database-backed application.
+
+For deployment, build with npm run build, run the API with npm run start -w server, serve client/dist with an SPA fallback to index.html, and proxy /api to the API under the same domain. Configure MONGODB_URI, JWT_SECRET, CLIENT_ORIGIN, NODE_ENV=production, and DEMO_MODE=true on the server. The current startup runner still requires MongoDB connectivity, but visitor demo data is generated independently of database records. Use a single API process with this in-memory demo implementation; multiple instances require shared session storage or sticky sessions. The Vercel configuration above is the preferred public portfolio deployment.
 
 ## Features
 

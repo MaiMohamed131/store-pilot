@@ -1,7 +1,18 @@
-import axios from 'axios';
+import axios, { type AxiosAdapter } from 'axios';
+let demoAdapter: Promise<AxiosAdapter> | undefined;
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api/v1',
   withCredentials: true,
+  ...(import.meta.env.VITE_DEMO_MODE === 'true'
+    ? {
+        adapter: async (config) => {
+          demoAdapter ??= import('./demo-api').then(({ createDemoAdapter }) =>
+            createDemoAdapter(window.localStorage),
+          );
+          return (await demoAdapter)(config);
+        },
+      }
+    : {}),
 });
 let csrf = '';
 let csrfRequest: Promise<void> | undefined;

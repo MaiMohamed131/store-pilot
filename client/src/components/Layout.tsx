@@ -8,6 +8,7 @@ import {
   Users,
   Settings,
   LogOut,
+  RotateCcw,
   PanelLeftClose,
   Menu,
   ArrowUpRight,
@@ -17,7 +18,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth, useShop } from '../app/providers';
-import { errorMessage } from '../lib/api';
+import { api, errorMessage } from '../lib/api';
 const links = [
   { to: '/dashboard', label: 'Overview', icon: LayoutDashboard },
   { to: '/products', label: 'Products', icon: Package },
@@ -108,13 +109,30 @@ export function AppSidebar({
               <strong>{user?.name}</strong>
               <small>{user?.role === 'ADMIN' ? 'Administrator' : 'Staff member'}</small>
             </div>
-            <button
-              title="Sign out"
-              aria-label="Sign out"
-              onClick={() => void signOut().catch((e) => toast.error(errorMessage(e)))}
-            >
-              <LogOut size={17} />
-            </button>
+            {user?.isDemo && (
+              <button
+                title="Reset demo"
+                aria-label="Reset demo"
+                onClick={() => {
+                  if (window.confirm('Reset your demo? Your temporary changes will be cleared.'))
+                    void api
+                      .post('/demo/reset')
+                      .then(() => window.location.assign('/dashboard'))
+                      .catch((e) => toast.error(errorMessage(e)));
+                }}
+              >
+                <RotateCcw size={17} />
+              </button>
+            )}
+            {!user?.isDemo && (
+              <button
+                title="Sign out"
+                aria-label="Sign out"
+                onClick={() => void signOut().catch((e) => toast.error(errorMessage(e)))}
+              >
+                <LogOut size={17} />
+              </button>
+            )}
           </div>
         </div>
       </aside>
@@ -140,7 +158,7 @@ export function AppHeader({ open }: { open: () => void }) {
       <div className="header-right">
         <span className="live-pill">
           <i />
-          Live workspace
+          {user?.isDemo ? 'Your private demo' : 'Live workspace'}
         </span>
         <span className="header-divider" />
         <Link

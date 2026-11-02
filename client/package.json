@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite --host localhost --port 5173 --strictPort",
     "build": "tsc -b && vite build",
-    "test": "vitest run"
+    "test": "vitest run",
+    "build:demo": "tsc -b && vite build --mode demo"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.0",
