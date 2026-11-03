@@ -1,217 +1,113 @@
 # StorePilot
 
-**Live portfolio demo:** [storepilot-brown.vercel.app](https://storepilot-brown.vercel.app)
+A responsive retail management app for tracking products, fulfilling orders, reviewing sales, and managing a small team. The project includes a React dashboard, an Express API, and a MongoDB-backed application, plus a browser-only portfolio demo.
 
-A full-stack retail workspace for small businesses: inventory, fulfillment, sales insights, and team access in one focused interface. Built with React and TypeScript, an Express REST API, and MongoDB. The database-backed app calculates dashboard metrics with MongoDB aggregations; the public Vercel demo calculates the same views from each visitor’s browser-local sample data.
+**[Try the live demo](https://storepilot-brown.vercel.app)** · [View screenshots](#screenshots)
 
-## Deploy the portfolio demo on Vercel
+## What you can do
 
-The root vercel.json builds the client with npm run build:demo -w client and publishes client/dist, with a fallback for dashboard and other client routes. Keep the Vercel Root Directory at the repository root. No environment variables, database, or API host are needed for this deployment.
-
-Import this repository into Vercel, or run npx vercel login followed by npx vercel --prod from the repository root. The CLI prints the deployed URL. Use the production domain in your CV and portfolio.
-
-This public demo opens directly with 40 products, 240 orders, and a sample team. Every browser profile gets its own editable data in localStorage for up to 24 hours. Refreshes and tabs on the same site share the saved workspace; separate browsers and private windows have separate data. The sidebar Reset demo button restores sample data. Clearing site storage also removes changes. This is simulated demo data, not a backend connected to real accounts. Product, team, profile, password, order status, shop, and analytics interactions run locally; passwords here belong only to the demo. The initial demo password is DemoPassword123!.
-
-To preview this exact version locally, run npm run dev -w client -- --mode demo. The original npm run dev:local command continues to run the Express-backed app.
-
-## Public portfolio demo
-
-Set DEMO_MODE=true in the server environment and restart the API. Every browser receives an opaque HttpOnly cookie identifying its own editable workspace with 40 sample products, 240 orders, and a demo team. No login is required. Products, order fulfillment/cancellation, team members, profile, password, settings, and analytics operate only on that workspace; demo requests never reach the real database routes.
-
-Changes remain in server memory for up to 24 hours and disappear on server restart. The sidebar Reset demo button restores fresh sample data. Tabs in the same browser share a workspace; separate browsers/private windows get separate workspaces. The initial demo password is DemoPassword123!. Workspaces and request rates are bounded. Set DEMO_MODE=false to restore the authenticated database-backed application.
-
-For deployment, build with npm run build, run the API with npm run start -w server, serve client/dist with an SPA fallback to index.html, and proxy /api to the API under the same domain. Configure MONGODB_URI, JWT_SECRET, CLIENT_ORIGIN, NODE_ENV=production, and DEMO_MODE=true on the server. The current startup runner still requires MongoDB connectivity, but visitor demo data is generated independently of database records. Use a single API process with this in-memory demo implementation; multiple instances require shared session storage or sticky sessions. The Vercel configuration above is the preferred public portfolio deployment.
-
-## Features
-
-- Cookie-based authentication with Argon2id password hashes, 15-minute JWT access tokens, rotating refresh sessions, replay revocation, CSRF checks, and login rate limiting.
-- Admin and Staff permissions enforced by Express. Staff can read the dashboard/catalog/orders and advance fulfillment. Admins manage products, cancellations, team members, analytics, and shop settings.
-- Validated product creation/editing, safe archiving, name/SKU search, category/stock filters, sorting, and server pagination.
-- Order details with historical item snapshots, allowed status transitions, actor history, and transactional cancellation/stock restoration.
-- Revenue and order charts with daily/weekly/monthly grouping, 7/30/90-day and custom date ranges, category revenue, top products, and low-stock alerts.
-- Persistent profile/shop settings, password changes with session invalidation, protected client routes, responsive navigation, keyboard focus, confirmation dialogs, toasts, and error/loading/empty states.
+- **Dashboard and analytics:** view revenue, order trends, top products, category performance, and low-stock alerts.
+- **Products:** create and edit products, search by name or SKU, filter and sort the catalog, and archive products without losing order history.
+- **Orders:** inspect item snapshots, move orders through fulfillment, and review status history. Admins can cancel eligible orders.
+- **Team and settings:** manage staff access, update the shop profile, and change account details.
+- **Roles:** staff can view the dashboard, catalog, and orders and advance fulfillment; admins can also manage products, cancellations, team members, analytics, and shop settings.
 
 ## Screenshots
 
-Captured from the live seeded local application:
+![StorePilot dashboard](docs/screenshots/dashboard.png)
 
-![Dashboard](docs/screenshots/dashboard.png)
+| Products | Order details | Mobile dashboard |
+| --- | --- | --- |
+| ![Product catalog](docs/screenshots/products.png) | ![Order details](docs/screenshots/order-details.png) | ![Mobile dashboard](docs/screenshots/mobile-dashboard.png) |
 
-[Products](docs/screenshots/products.png) · [Order details](docs/screenshots/order-details.png) · [Mobile dashboard](docs/screenshots/mobile-dashboard.png)
+## Try the demo locally
 
-## Stack and architecture
+The portfolio demo runs entirely in the browser. It requires Node.js 22.12+ and npm, but no API or database.
 
-React 19 · TypeScript · Vite · Tailwind CSS 4 · React Router · TanStack Query · Axios · React Hook Form/Zod · Recharts · Lucide · Sonner. Express 5 · Mongoose 8 · MongoDB 8 · JWT · Argon2 · Helmet · CORS · express-rate-limit. Vitest, Testing Library, Supertest, ESLint, Prettier.
+```bash
+npm ci
+npm run dev -w client -- --mode demo
+```
+
+Open [http://localhost:5173](http://localhost:5173). The demo starts with 40 products, 240 orders, and a sample team. You can edit its data and use **Reset demo** in the sidebar to start over. Changes are stored in your browser for up to 24 hours and are shared by tabs on the same site. Separate browser profiles have separate workspaces. The initial demo password is `DemoPassword123!`.
+
+The [Vercel configuration](vercel.json) builds this browser-only version from the repository root.
+
+## Run the full-stack app
+
+You will need Node.js 22.12+, npm, and MongoDB. A MongoDB replica set is needed for actions that span multiple documents, including order cancellation with stock restoration, team changes, password changes, and the full demo seed. The included Docker Compose file provides a local single-node replica set.
+
+1. Install dependencies and create your local server configuration:
+
+   ```powershell
+   npm ci
+   Copy-Item server/.env.example server/.env
+   ```
+
+2. Edit `server/.env`. Set `JWT_SECRET` to a random string of at least 32 characters, `SEED_PASSWORD` to a local password of at least 12 characters, and choose the `SEED_*_EMAIL` addresses. The example uses `mongodb://127.0.0.1:27017/storepilot` and `http://localhost:5173`.
+
+3. Start MongoDB, add sample data, and start the app:
+
+   ```powershell
+   docker compose up -d --wait
+   npm run seed
+   npm run dev
+   ```
+
+Open [http://localhost:5173](http://localhost:5173). The API runs on [http://localhost:4000](http://localhost:4000). Sign in with the admin or staff email and password you configured before seeding. The Vite development server proxies `/api` to Express.
+
+To use an existing MongoDB server, point `MONGODB_URI` in `server/.env` to the intended application database and start the server yourself. `npm run dev:local` connects to that server without managing or seeding it. On a standalone MongoDB server, transaction-dependent actions are unavailable. The separate `npm run seed:demo` command can import the historical product and order sample into a standalone database after you have created an admin account. See [local MongoDB notes](docs/mongodb-local.md) for the exact behavior and limitations.
+
+### Environment variables
+
+| Variable | Purpose |
+| --- | --- |
+| `MONGODB_URI` | MongoDB connection URI |
+| `PORT` | API port; defaults to `4000` |
+| `CLIENT_ORIGIN` | Frontend origin allowed by the API |
+| `JWT_SECRET` | Private signing secret, at least 32 characters |
+| `NODE_ENV` | `development`, `test`, or `production` |
+| `SEED_ADMIN_EMAIL`, `SEED_STAFF_EMAIL`, `SEED_SECOND_STAFF_EMAIL` | Accounts created by the full seed |
+| `SEED_PASSWORD` | Initial password for seeded accounts |
+| `DEMO_MODE` | Enables the API's separate, temporary visitor demo when `true` |
+| `VITE_API_URL` | Optional client API base; defaults to `/api/v1` |
+
+Keep `.env` files and real credentials out of version control. The browser-only demo does not need any of these variables.
+
+## Tech stack
+
+- **Frontend:** React 19, TypeScript, Vite, Tailwind CSS 4, React Router, TanStack Query, React Hook Form, Zod, Recharts.
+- **Backend:** Node.js, Express 5, TypeScript, Mongoose, MongoDB, JWT, Argon2.
+- **Quality:** Vitest, Testing Library, Supertest, ESLint, Prettier.
+
+The full-stack app uses HttpOnly cookies, CSRF protection, rotating refresh sessions, role checks, and request validation. Prices and totals are stored as integer minor currency units. Order items retain product snapshots so later catalog edits do not rewrite order history.
+
+## Project structure
 
 ```text
-client/src/
-  app/          routing, authentication provider, error boundary
-  components/   responsive shell, UI primitives, charts
-  features/     product form and permitted order actions
-  pages/        login, dashboard, products, orders, analytics, users, settings
-  lib/          Axios, CSRF/refresh handling, formatting
-  types/        API record types
-  tests/        interaction and route tests
-server/src/
-  config/       validated environment configuration
-  models/       users, products, orders, sessions, shop, admin guard
-  middleware/   authentication, roles, CSRF, public serialization
-  validators/   strict request schemas
-  services/     sessions, order transitions, monetary rules, aggregations
-  scripts/      repeatable demo provisioning
-  tests/        integration tests on an isolated MongoDB replica set
-  app.ts        REST routing, validation, error mapping
-  index.ts      database connection and graceful shutdown
+client/              React dashboard and browser-only demo
+server/              Express API, MongoDB models, services, and tests
+docs/screenshots/    Screenshots from the seeded application
+docs/                Verification and local MongoDB notes
+scripts/             Local setup and verification helpers
+vercel.json          Browser-only portfolio deployment
+docker-compose.yml   Local MongoDB replica set
 ```
 
-The Vite development server proxies `/api` to Express. Production should serve the client and `/api` under a single origin. MongoDB replica-set transactions protect inventory restoration and serialize changes to active admin membership. Records use MongoDB ObjectIds; money uses integer minor units end-to-end. Password hashes and session secrets are excluded from API responses.
+## Checks
 
-## Local setup
-
-Requirements: Node.js **22.12+**, npm, and an existing MongoDB server executable or a MongoDB replica set. Docker Compose is an optional alternative. Node 22.18 is suitable. Vite 7's runtime requirements are documented in the [official Vite guide](https://v7.vite.dev/guide/); Mongoose 8 supports MongoDB 8 per its [compatibility guide](https://mongoosejs.com/docs/8.x/docs/compatibility.html).
-
-### This machine: use the already installed server on I:
-
-Dependencies are already installed and an ignored `server/.env` has been created with random local-only credentials. **No downloads or installation are needed.** Run:
-
-```powershell
-npm.cmd run dev:local
+```bash
+npm test
+npm run build
+npm run lint
 ```
 
-Start your existing server manually, as usual:
+The default tests run without MongoDB. The API integration suite is separate: `npm run test:integration -w server`. It starts an isolated MongoDB replica set and needs a MongoDB binary. See [verification notes](docs/verification.md) for coverage and setup.
 
-```powershell
-mongod --dbpath "I:\My downloads\data"
-```
+## Deployment notes
 
-`server/.env` uses `MONGODB_URI=mongodb://127.0.0.1:27017/storepilot` (no `replicaSet` parameter). Then run `npm.cmd run dev:local` in another terminal. Open **http://localhost:5173** (matching `CLIENT_ORIGIN`). StorePilot only connects to that server; it does not launch/stop MongoDB, initiate/reconfigure a replica set, seed data, or automatically create collections/indexes. Its temporary files remain under `.cache/local-tmp` on I:. Stopping the app only disconnects its client.
+The root Vercel setup publishes the browser-only demo, whose changes live in each visitor's local storage. To deploy the database-backed app, build both workspaces, run `npm run start -w server`, serve `client/dist` with a single-page-app fallback, and proxy `/api` to Express on the same HTTPS origin. Configure the server's production environment and a MongoDB replica set. The app does not include checkout, payment processing, uploads, or password recovery.
 
-The existing server is standalone. Login/refresh, reads, product operations, and atomic fulfillment updates support standalone operation. Cancellation with stock restoration, team updates, password changes, and the original full seed require multi-document transactions and return a clear error before changing data on standalone MongoDB. StorePilot does not reconfigure the server to enable them. The standalone historical import (`npm.cmd run seed:demo`) is separate and insert-only. After explicit approval, the local database now has one admin, 40 demo products, and 240 demo orders. Startup itself still creates no accounts or demo records. See [existing MongoDB configuration and verification](docs/mongodb-local.md).
+## License
 
-On another machine with an existing server, configure local-only secrets without overwriting an existing environment file:
-
-```powershell
-node scripts/configure-local.mjs
-```
-
-Set `MONGODB_URI` in `server/.env` to your existing server and intended application database. The setup helper creates project configuration only; it never connects to MongoDB. Download/install commands require your approval before execution.
-
-### Manual setup / optional Docker
-
-```powershell
-npm.cmd install
-Copy-Item server/.env.example server/.env
-```
-
-Edit `server/.env`. Set `JWT_SECRET` to a random value of at least 32 characters and `SEED_PASSWORD` to a local demo password of at least 12 characters. Choose the three `SEED_*_EMAIL` values. Generate a secret with:
-
-```powershell
-node -e "console.log(require('node:crypto').randomBytes(48).toString('hex'))"
-```
-
-Start MongoDB, wait until healthy, provision demo data, and start both apps:
-
-```powershell
-docker compose up -d --wait
-npm.cmd run seed
-npm.cmd run dev
-```
-
-Open [the local workspace](http://localhost:5173). The API listens on port 4000. On shells without PowerShell execution-policy restrictions, `npm` works in place of `npm.cmd`.
-
-### Login and local CSRF checks
-
-The default Vite URL is `http://localhost:5173` with a fixed port. Development also permits `127.0.0.1`/IPv6 loopback on the same scheme and port; production accepts only the configured `CLIENT_ORIGIN`. Cookies and matching CSRF headers are still required. The client refreshes a stale CSRF token and retries the rejected request once; foreign origins remain blocked.
-
-`SEED_ADMIN_EMAIL` and `SEED_PASSWORD` are provisioning inputs, not automatically registered login credentials. The local admin was explicitly created from those values and login was verified. Changing these variables does not reset an existing account's password. For a different empty application database, the insert-only helper below can create one administrator after approval:
-
-```powershell
-npm.cmd run provision:admin -w server -- --confirm-create
-```
-
-This helper refuses to run without the confirmation flag or when any users already exist. It does not reset passwords, overwrite existing users, or seed products/orders. Do not run it without approving that database change.
-
-### Environment reference
-
-| Variable                                      | Purpose                                                                   |
-| --------------------------------------------- | ------------------------------------------------------------------------- |
-| `MONGODB_URI`                                 | Existing server URI; defaults to `mongodb://127.0.0.1:27017/storepilot`   |
-| `PORT`                                        | Express port, default 4000                                                |
-| `CLIENT_ORIGIN`                               | Exact frontend origin for CORS and mutation Origin checks                 |
-| `JWT_SECRET`                                  | Required private signing secret, 32+ characters                           |
-| `NODE_ENV`                                    | `development`, `test`, or `production`; production enables Secure cookies |
-| `SEED_ADMIN_EMAIL`                            | Local demo administrator email                                            |
-| `SEED_STAFF_EMAIL`, `SEED_SECOND_STAFF_EMAIL` | Local demo staff emails                                                   |
-| `SEED_PASSWORD`                               | Local-only provisioning password, 12+ characters                          |
-| `VITE_API_URL`                                | Optional client API base, default `/api/v1`; never put secrets here       |
-
-`.env` files are ignored by Git. No production or public demo credentials are committed. Log in using the emails/password you configured. Repeat seeding does not reset existing passwords or overwrite edited products/inventory. Change an existing password through Settings. Use a new disposable database for a clean demo; do not seed a production database.
-
-### Demo consistency and business rules
-
-For the existing standalone server, use the insert-only catalog/order import:
-
-```powershell
-npm.cmd run seed:demo
-```
-
-This command connects to the configured server and adds 40 products across five categories and 240 historical orders over approximately 90 days. It never starts MongoDB or provisions/changes users, sessions, shop settings, or guards. Reserved `DEMO-SP-*` SKUs/order numbers, deterministic IDs, and a retained seed date make repeat runs insert missing records only. Existing demo edits are preserved. Foreign records occupying the reserved namespace cause an error before insertion.
-
-The importer fingerprints every pre-existing document and verifies it remains unchanged. Fingerprint receipts stay under `.cache/demo-seed` on I: and contain no plaintext credentials or record contents. New product stock represents the closing inventory after the historical demo sales; importing orders does not decrement any existing stock. Order prices, names, SKUs, and categories are snapshots. Cancelled orders do not consume stock; only paid, non-cancelled orders contribute to recognized revenue.
-
-This is a resumable historical import, not a multi-document transaction. A failed/interrupted run can leave part of the new demo batch present; rerun the same command to complete missing inserts. No rollback deletes or overwrites existing records. The older `npm run seed` remains the replica-set demo-account provisioning script and is separate from this standalone import.
-
-### Original replica-set demo provisioning
-
-The seed creates one admin, two staff, 40 products in five categories, and 240 orders over about 90 days. Unique emails/SKUs/order numbers prevent duplicates. The initial order set and inventory are created in a transaction; later runs preserve existing records. Initial opening stock equals closing stock plus non-cancelled seeded item quantities.
-
-- Stock is deducted/reserved **once at order creation**. This app has no checkout/order-create endpoint; demo provisioning is the only order creation flow. Adding a checkout requires a transactional conditional decrement (`stockQuantity >= quantity`) before creating the order.
-- Allowed transitions: `Pending → Processing → Shipped → Delivered`. Admins may cancel from Pending or Processing. Staff may perform only fulfillment transitions. Delivered/Cancelled are terminal. Changes record actor and time.
-- Cancellation atomically restores item quantities once. A paid cancelled order becomes `Refunded`; this is an accounting demo marker, not a payment-provider refund.
-- Revenue sums `totalAmount` (items plus shipping) for **Paid, non-Cancelled** orders created in the chosen UTC interval. Unpaid, Refunded, and Cancelled orders never contribute. AOV divides that revenue by eligible paid order count and rounds to a minor unit. Total Orders includes every payment/status state; Active Products is the current catalog count, independent of date range.
-- Category and top-product revenue use item totals and exclude shipping. Category/name/price snapshots preserve historical reporting. Empty time buckets show zero. Weekly buckets begin Monday, all chart boundaries use UTC. Custom ranges are limited to 367 days.
-- Archiving never deletes a product or its order references. Stock edits represent explicit inventory corrections; fulfillment status changes do not deduct stock again.
-- Currency is a display preference. No exchange-rate conversion or multi-currency accounting is implemented; use one accounting currency.
-- A shared transactional guard prevents concurrent removal of the last active admin. Role changes/deactivation revoke sessions; password changes invalidate all access and refresh sessions.
-
-## Verification
-
-```powershell
-npm.cmd test
-npm.cmd run build
-npm.cmd run lint
-npm.cmd run format
-```
-
-Standalone safety tests use mocks and do not start MongoDB:
-
-```powershell
-node node_modules/vitest/vitest.mjs run --config server/vitest.config.ts server/src/tests/standalone.test.ts server/src/tests/auth-standalone.test.ts server/src/tests/orders-standalone.test.ts
-```
-
-`npm.cmd test` runs these standalone unit tests plus frontend jsdom tests, without starting MongoDB. The explicitly separate integration suite (`npm.cmd run test:integration -w server`) starts an isolated replica set and is not part of `dev:local` or default tests. Do not run it under a no-separate-instance constraint. Automatic downloads are disabled; its temporary files stay on I: under `.cache/test-tmp`. See [verification results](docs/verification.md).
-
-## API overview
-
-All endpoints are under `/api/v1`. Successful records use `{ data }`; list responses add `{ meta: { total, page, limit } }`; errors use `{ error: { message, fields? } }`. Deletion/logout/password change return 204. Dates are ISO 8601. Amounts are integer minor units.
-
-| Endpoints                                                                            | Access                                |
-| ------------------------------------------------------------------------------------ | ------------------------------------- |
-| `GET /health`, `GET /auth/csrf`, `POST /auth/login`, `/auth/refresh`, `/auth/logout` | Public (mutations require CSRF)       |
-| `GET /auth/me`                                                                       | Authenticated                         |
-| `GET /products`, `/products/:id`                                                     | Admin, Staff                          |
-| `POST /products`, `PATCH /products/:id`, `DELETE /products/:id`                      | Admin                                 |
-| `GET /orders`, `/orders/:id`, `PATCH /orders/:id/status`                             | Authenticated; transition rules apply |
-| `GET /analytics/overview`                                                            | Admin, Staff dashboard                |
-| `GET /analytics/revenue`, `/analytics/orders`, `/analytics/top-products`             | Admin                                 |
-| `GET /users`, `POST /users`, `PATCH /users/:id`                                      | Admin                                 |
-| `GET /settings`, `PATCH /profile`, `POST /profile/password`                          | Authenticated                         |
-| `PATCH /settings`                                                                    | Admin                                 |
-
-List parameters: `page`, `limit` (1–100), `search`, `sort`, `direction`. Product filters: `category`, `stock` (`low`, `out`, `healthy`), `active` (`true`, `false`, `all`). Orders: `status`, `from`, `to`. Analytics: `from`, `to`, `group` (`daily`, `weekly`, `monthly`). Products accept integer `price`, `stockQuantity`, `lowStockThreshold`. Status updates accept `{ "status": "Processing" }`.
-
-Cookie-authenticated mutations must first obtain `/auth/csrf`, retain its cookie, and send the returned token as `X-CSRF-Token`. Access/refresh tokens never use localStorage. Refresh sessions last seven days and rotate on use; replay revokes the entire family, including its access tokens. Multiple tabs should coordinate refresh in a production extension to avoid legitimate simultaneous rotation being treated as replay.
-
-## Deployment requirements
-
-No deployment has been performed. Build both workspaces, run `npm run start -w server`, and serve `client/dist` from a static host/reverse proxy with SPA history fallback. Proxy `/api` to Node and use HTTPS on the same origin. Configure `NODE_ENV=production`, a private random `JWT_SECRET`, `CLIENT_ORIGIN`, and a private MongoDB replica-set URI. Secure cookies require HTTPS. Do not expose MongoDB publicly. Configure Express `trust proxy` for your actual proxy topology before relying on IP rate limiting behind a proxy; use a shared limiter store for multiple Node replicas. Back up MongoDB, monitor logs, rotate secrets through an operational process, and supply a production process manager. This scoped portfolio app does not include billing, password recovery, a checkout, external payments, or uploads.
+No license has been specified for this repository.
